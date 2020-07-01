@@ -17,47 +17,54 @@ exports.send = functions.database.ref('/Notification/{userId}/CloudFuncation/{pu
                                                   "sender id : "+context.params.userId
                                 );
 
+                               if(snapshot.hasChild("topic")){
+                                 return admin.messaging(). (snapshot.val().topic,getPayload(snapshot))
+                                   .then(result=> {
+                                          return console.log("mylog","Notification sent.");
+                                   });
+                               }
+                               else {
+                                 return admin.database().ref('/User/'+snapshot.val().id)
+                                                .once('value').then(function(snap){
 
-                                return admin.database().ref('/User/'+snapshot.val().id)
-                                               .once('value').then(function(snap){
-
-                                                       const payload = {
-
-                                                         notification: {
-                                                            "title": snapshot.val().title,
-                                                            "body" : snapshot.val().description,
-                                                            "image" : "https://image.shutterstock.com/image-photo/kiev-ukraine-may-14-2016-260nw-420838831.jpg",
-                                                            "click_action" : "my_click"
-                                                          },
-
-                                                          data : {
-
-                                                            "title": snapshot.val().title,
-                                                            "body" : snapshot.val().description,
-                                                            "image" : "https://cdn.spacetelescope.org/archives/images/wallpaper2/heic2007a.jpg",
-                                                            "click_action" : "my_click",
-                                                            "text":"Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in",
-
-                                                             "key1" : "value 1",
-                                                             "key2" : "value 2"
-
-                                                        }
-
-
-                                                       }
-
-                                                       return admin.messaging().sendToDevice(snap.val().token,payload)
-                                                         .then(result=> {
-
-                                                                return console.log("mylog","Notification sent.");
-
-                                                         });
+                                                          return admin.messaging().sendToDevice(snap.val().token,getPayload(snapshot))
+                                                            .then(result=> {
+                                                                   return console.log("mylog","Notification sent.");
+                                                            });
+                                                });
+                               }
 
 
 
 
-
-
-                                               });
 
                      });
+
+
+
+                function getPayload(snapshot){
+                     return    {
+                                    notification: {
+                                        "title": snapshot.val().title,
+                                        "body" : snapshot.val().description,
+                                        "image" : "https://image.shutterstock.com/image-photo/kiev-ukraine-may-14-2016-260nw-420838831.jpg",
+                                        "click_action" : "my_click"
+                                      },
+
+                                      data : {
+
+                                        "title": snapshot.val().title,
+                                        "body" : snapshot.val().description,
+                                        "image" : "https://cdn.spacetelescope.org/archives/images/wallpaper2/heic2007a.jpg",
+                                        "click_action" : "my_click",
+                                        "text":"Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in",
+
+                                         "key1" : "value 1",
+                                         "key2" : "value 2"
+
+                                    }
+
+
+                              };
+
+                }
